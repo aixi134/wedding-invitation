@@ -40,7 +40,7 @@
 
       <view wx:for="{{visitorList}}" wx:key="_id" class="record-item">
         <view class="item-header">
-          <text class="visitor-name">{{item.visitorName}}</text>
+          <text class="visitor-name">{{item.sceneInfo}}</text>
           <text class="visit-time">{{formatTime(item.visitTime)}}</text>
         </view>
         <view class="item-content">

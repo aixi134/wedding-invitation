@@ -298,6 +298,6 @@
     <image bindtap="goInfo" src="../../images/icon/manager.png" mode="widthFix"/>
 </view>
 
-<view  class="manager2">
+<view  wx:if="{{ isManager }}"  class="manager2">
     <image bindtap="goRecordInfo" src="../../images/icon/channel.png" mode="widthFix"/>
 </view>

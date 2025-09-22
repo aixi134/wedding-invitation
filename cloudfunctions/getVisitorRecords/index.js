@@ -30,8 +30,8 @@ exports.main = async (event) => {
     // 关键词搜索（访客姓名或访问目的）
     if (keyword) {
       query = query.where(_.or([
-        { visitorName: db.RegExp({ regexp: keyword, options: 'i' }) },
-        { purpose: db.RegExp({ regexp: keyword, options: 'i' }) }
+        { sceneInfo: db.RegExp({ regexp: keyword, options: 'i' }) },
+        { nickName: db.RegExp({ regexp: keyword, options: 'i' }) }
       ]))
     }
     
