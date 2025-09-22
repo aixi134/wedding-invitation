@@ -11,6 +11,7 @@ const isRemoved = APP.globalData.isRemoved
 Page({
     data: {
         ...APP.globalData,
+        userInfo: null,
         isManager: false, // 当前用户是否为管理员
         musicIsPaused: false, // 是否暂停背景音乐
         activeIdx: isRemoved ? 0 : -1, // 祝福语轮播用，当前显示的祝福语索引值
@@ -124,6 +125,10 @@ Page({
 
     // 小程序加载时，拉取表单信息并填充，以及格式化各种婚礼时间
     onLoad() {
+        this.getUserInfo()
+        
+
+        
         this.timer = null
         this.music = null
         this.isSubmit = false
@@ -177,7 +182,7 @@ Page({
 
     // 小程序可见时，拉取祝福语，并设置定时器每20s重新拉取一次祝福语
     onShow() {
-    
+        console.log(this.data.userInfo, this.userInfo, userInfo)
         if (!isRemoved) {
             this.getGreetings()
 
@@ -361,7 +366,7 @@ Page({
                 openid
             }
         }) => {
-         
+
             const isManager = MANAGER.indexOf(openid) > -1
             // console.log(MANAGER,openid, isManager, this.data.activeIdx, greetings.length)
             greetings.length && this.setData(this.data.activeIdx === -1 ? {
@@ -369,9 +374,9 @@ Page({
                 greetings,
                 activeIdx: 0
             } : {
-                isManager,
-                greetings
-            })
+                    isManager,
+                    greetings
+                })
         })
     },
 
@@ -403,5 +408,61 @@ Page({
         wx.navigateTo({
             url: '../info/index'
         })
-    }
+    },
+    // 跳转访客页面
+    goRecordInfo() {
+        wx.navigateTo({
+            url: `../record/index?isManager=${this.data.isManager}`
+        })
+    },
+    getUserInfo: function() {
+        return new Promise((resolve, reject) => {
+          wx.getSetting({
+            success: (res) => {
+              if (res.authSetting['scope.userInfo']) {
+                wx.getUserInfo({
+                  success: (res) => {
+                    this.setData({ userInfo: res.userInfo })
+                    resolve(res.userInfo)
+                  },
+                  fail: reject
+                })
+              } else {
+                this.createAuthButton(resolve, reject)
+              }
+            },
+            fail: reject
+          })
+        })
+      },
+      
+      createAuthButton: function(resolve, reject) {
+        const button = wx.createUserInfoButton({
+          type: 'text',
+          text: '获取用户信息',
+          style: {
+            left: 10,
+            top: 76,
+            width: 200,
+            height: 40,
+            lineHeight: 40,
+            backgroundColor: '#ff0000',
+            color: '#ffffff',
+            textAlign: 'center',
+            fontSize: 16,
+            borderRadius: 4
+          }
+        })
+        
+        button.onTap((res) => {
+          button.destroy()
+          if (res.errMsg === 'getUserInfo:ok') {
+            this.setData({ userInfo: res.userInfo })
+            resolve(res.userInfo)
+          } else {
+            reject(new Error('用户拒绝授权'))
+          }
+        })
+      }
+    
 })

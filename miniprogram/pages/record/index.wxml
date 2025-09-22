@@ -1,0 +1,62 @@
+<view class="container">
+  <!-- 非管理员提示 -->
+  <view wx:if="{{!isManager}}" class="no-permission">
+    <view class="permission-tip">您暂无权限查看访客记录</view>
+    <view class="permission-desc">请联系系统管理员</view>
+  </view>
+
+  <!-- 管理员界面 -->
+  <view wx:else class="manager-view">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <view class="search-input">
+        <input 
+          value="{{keyword}}" 
+          placeholder="输入访客姓名或访问目的" 
+          bindinput="onSearchInput"
+          bindconfirm="onSearch"
+        />
+        <text class="search-icon" bindtap="onSearch">🔍</text>
+        <text wx:if="{{keyword}}" class="clear-icon" bindtap="onClearSearch">×</text>
+      </view>
+    </view>
+
+    <!-- 统计信息 -->
+    <view class="stats">
+      <text>欢迎，{{userInfo.name}}</text>
+      <text>共{{visitorList.length}}条记录</text>
+    </view>
+
+    <!-- 访客列表 -->
+    <scroll-view 
+      class="record-list" 
+      scroll-y 
+      bindscrolltolower="onReachBottom"
+    >
+      <view wx:if="{{visitorList.length === 0 && !loading}}" class="empty">
+        <image src="../../images/icon/play.png" class="empty-image"></image>
+        <text class="empty-text">{{keyword ? '暂无搜索结果' : '暂无访客记录'}}</text>
+      </view>
+
+      <view wx:for="{{visitorList}}" wx:key="_id" class="record-item">
+        <view class="item-header">
+          <text class="visitor-name">{{item.visitorName}}</text>
+          <text class="visit-time">{{formatTime(item.visitTime)}}</text>
+        </view>
+        <view class="item-content">
+          <text class="purpose">目的：{{item.purpose}}</text>
+          <text class="contact">联系方式：{{item.contact}}</text>
+          <text wx:if="{{item.remark}}" class="remark">备注：{{item.remark}}</text>
+        </view>
+        <view class="item-footer">
+          <text class="create-time">记录时间：{{formatTime(item.createTime)}}</text>
+          <text class="delete-btn" bindtap="deleteRecord" data-id="{{item._id}}">删除</text>
+        </view>
+      </view>
+
+      <!-- 加载状态 -->
+      <view wx:if="{{loading}}" class="loading">加载中...</view>
+      <view wx:if="{{!hasMore && visitorList.length > 0}}" class="no-more">没有更多数据了</view>
+    </scroll-view>
+  </view>
+</view>

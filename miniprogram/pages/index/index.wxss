@@ -576,8 +576,16 @@
     transform: translateY(-50%);
     z-index: 99999999;
 }
+.manager2 {
+    position: fixed;
+    top: 60%;
+    left: 20rpx;
+    padding: 0;
+    transform: translateY(-50%);
+    z-index: 99999999;
+}
 
-.manager image {
+.manager image,.manager2 image {
     width: 120rpx;
     height: 120rpx;
 }

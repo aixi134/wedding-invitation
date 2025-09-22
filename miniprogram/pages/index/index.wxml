@@ -2,7 +2,7 @@
     <view>好久不见，婚礼见丨{{ couple[0].name }}&{{ couple[1].name }}</view>
     <view>我们结婚啦~</view>
 </view>
-
+{{userInfo.nickName}}
 <view class="desc">
     <text class="author">{{ publisher }}</text>
     <text class="date">{{ weddingTimeStr[0] }}</text>
@@ -296,4 +296,8 @@
 
 <view wx:if="{{ isManager }}" class="manager">
     <image bindtap="goInfo" src="../../images/icon/manager.png" mode="widthFix"/>
+</view>
+
+<view  class="manager2">
+    <image bindtap="goRecordInfo" src="../../images/icon/channel.png" mode="widthFix"/>
 </view>
