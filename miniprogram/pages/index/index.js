@@ -182,7 +182,7 @@ Page({
 
     // 小程序可见时，拉取祝福语，并设置定时器每20s重新拉取一次祝福语
     onShow() {
-        console.log(this.data.userInfo, this.userInfo, userInfo)
+  
         if (!isRemoved) {
             this.getGreetings()
 
