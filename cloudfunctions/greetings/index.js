@@ -22,7 +22,7 @@ exports.main = async (event, context) => {
 
     return {
         greetings: (await Promise.all(tasks)).reduce((acc, cur) => {
-            return acc.concat(cur.data.map(({ _id, name, greeting }) => ({ _id, name, greeting })))
+            return acc.concat(cur.data.map(({ _id, name, greeting,avatarUrl }) => ({ _id, name, greeting, avatarUrl })))
         }, []),
         openid: OPENID
     }

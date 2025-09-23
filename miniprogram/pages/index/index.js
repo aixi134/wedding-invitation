@@ -18,7 +18,8 @@ Page({
         form: { // 表单信息
             name: '',
             num: '',
-            greeting: ''
+            greeting: '',
+            avatarUrl: ''
         },
         weddingTimeStr: [], // 格式化的婚礼日期列表
 
@@ -126,7 +127,30 @@ Page({
     // 小程序加载时，拉取表单信息并填充，以及格式化各种婚礼时间
     onLoad() {
         this.getUserInfo()
+          // 假设云函数更新了 magic 数据
+          
+                // 添加访客记录的云函数
+                wx.cloud.callFunction({
+                  name: 'system_config',
+                  data: {
+                  }
+              }).then(result => {
+                
+                if (result.errMsg === 'cloud.callFunction:ok') {
+                  let config = result.result[0]
+            
+                  this.setData({
+                    magic: config.magic,
+                    isRemoved: config.isRemoved
+                  });
+                  
+                }else{
         
+                }
+        
+                return result;
+              })
+
 
         
         this.timer = null
@@ -134,20 +158,24 @@ Page({
         this.isSubmit = false
 
         if (!isRemoved) {
+          
             const db = wx.cloud.database()
             db.collection('surveys').get({
                 success: res => {
+                  
                     if (res.data.length) {
                         const {
                             name,
                             num,
-                            greeting
+                            greeting,
+                            avatarUrl
                         } = res.data[0]
                         this.setData({
                             form: {
                                 name,
                                 num,
-                                greeting
+                                greeting,
+                                avatarUrl
                             }
                         })
                     }
@@ -286,8 +314,11 @@ Page({
         if (!this.isSubmit) {
             const {
                 name,
-                num
+                num,
+                avatarUrl
             } = e.detail.value
+            console.log("this.form", e.detail.value)
+            // let avatarUrl = this.data.form.avatarUrl
             if (name === '') {
                 wx.showToast({
                     title: '要写上名字哦~',
@@ -322,6 +353,7 @@ Page({
                             name,
                             num,
                             greeting,
+                            avatarUrl,
                             _id
                         }
                     }) => {
@@ -335,13 +367,15 @@ Page({
                         }) && greetings.push({ // 如果没有找到，追加之
                             name,
                             greeting,
+                            avatarUrl,
                             _id
                         })
                         this.setData({
                             form: {
                                 name,
                                 num,
-                                greeting
+                                greeting,
+                                avatarUrl
                             },
                             greetings
                         })
@@ -463,6 +497,25 @@ Page({
             reject(new Error('用户拒绝授权'))
           }
         })
-      }
+      },
     
+    // 获取用户信息的函数
+    onGetUserInfo: function (e) {
+      if (e.detail.errMsg === 'getUserInfo:ok') {
+          const userInfo = e.detail.userInfo;
+          this.setData({
+              form: {
+                  ...this.data.form,
+                  name: userInfo.nickName,
+                  avatarUrl: userInfo.avatarUrl
+              }
+          });
+          console.log("用户信息:", userInfo);
+      } else {
+          wx.showToast({
+              title: '授权失败',
+              icon: 'none'
+          });
+      }
+  }
 })

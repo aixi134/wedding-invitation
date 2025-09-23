@@ -8,7 +8,8 @@ const surveys = db.collection('surveys')
 // 云函数入口函数
 exports.main = async (event, context) => {
     const { OPENID } = cloud.getWXContext()
-    let { name, num, greeting } = event
+    let { name, num, greeting, avatarUrl } = event
+    console.log(name, num, greeting, avatarUrl)
     num *= 1
 
     const { data: res } = await surveys.where({
@@ -21,7 +22,8 @@ exports.main = async (event, context) => {
             data: {
                 name,
                 num,
-                greeting
+                greeting,
+                avatarUrl
             }
         })
         _id = res[0]._id
@@ -31,6 +33,7 @@ exports.main = async (event, context) => {
                 name,
                 num,
                 greeting,
+                avatarUrl,
                 _openid: OPENID
             }
         })
@@ -41,6 +44,7 @@ exports.main = async (event, context) => {
         name,
         num,
         greeting,
+        avatarUrl,
         _id
     }
 }

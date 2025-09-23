@@ -9,7 +9,7 @@ App({
 
         // 魔法开关，开启后可使用完整功能，包括填写表单、祝福语轮播和视频号播放器等等
         // magic: new Date() * 1 >= 1699401600000, // 自动党，用指定时间戳来控制自动开启
-        magic: true, // 手动党（方便预览完整功能，我先设为true）
+        magic: false, // 手动党（方便预览完整功能，我先设为true）
 
         // 婚礼日期时间
         weddingTime: '2025-10-04 11:30',
@@ -39,17 +39,19 @@ App({
     // 小程序启动时，初始化云开发环境
     onLaunch() {
 
-
         !this.globalData.isRemoved && wx.cloud.init({
             env: 'cloud1-7gptyc1428d9b296', // 云开发环境ID，在云开发控制台里可以查看
             traceUser: true
         })
+
     },
 
     // 小程序可见时，判断是否为单页模式
     onShow(options) {
         const db = wx.cloud.database()
         const { scene, path, query, referrerInfo } = options
+
+
 
         // 获取设备信息
         const systemInfo = wx.getSystemInfoSync()

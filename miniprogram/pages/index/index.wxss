@@ -541,6 +541,43 @@
 .greetings-name {
     font-weight: 600;
 }
+.greetings-list {
+  display: flex;
+  flex-direction: column; /* 纵向排列每个 greetings-item */
+}
+
+.greetings-item {
+  display: flex;
+  align-items: center;  /* 图标和文字垂直居中对齐 */
+  margin-bottom: 10rpx;  /* 每一项之间的间距 */
+}
+
+.controller-left-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background-color: rgba(133, 22, 14, 1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  margin-right: 10rpx;  /* 图标和文字之间的间距 */
+}
+
+.greeting-text {
+  display: flex;
+  align-items: center;  /* 使文字垂直居中 */
+}
+
+.greetings-name {
+  margin-right: 5rpx;  /* 给名字和祝福语之间留点空隙 */
+}
+
+/* 激活状态的样式 */
+.greetings-item.active {
+  background-color: rgba(133, 22, 14, 0.1);  /* 激活状态下的背景色，可以根据需要修改 */
+}
+
 
 .controller {
     display: flex;
@@ -548,7 +585,16 @@
     margin-left: auto;
     margin-bottom: 2rpx
 }
-
+.controller-left-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background-color: rgba(133, 22, 14, 1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .7;
+}
 .controller-btn {
     width: 60rpx;
     height: 60rpx;
