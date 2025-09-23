@@ -25,7 +25,7 @@ App({
             image: 'https://h5cdn.hunbei.com/editorTempCustomPic/2025-9-20-bwCWsARrGE8zr2cSNwKDHBNw6zBKTEde.jpeg', // 新娘单人照
             name: '张宇', // 姓名
             alias: '新娘', // 称谓
-            number: 'XXXXXXXXXXX', // 手机号码
+            number: '打新郎的', // 手机号码
             birthday: '1996.10.16' // 出生日期
         }],
 

@@ -210,12 +210,14 @@
         <view>
             <text>*</text>
             <input type="nickname" class="weui-input" placeholder="姓名" name="name" value="{{ form.name }}" placeholder-class="form-input-placeholder" maxlength="10" />
-            <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-              <image class="avatar" src="{{form.avatarUrl}}"></image>
-            </button> 
+
             <!-- <image  class="couple-cover" mode="aspectFill" src="{{ form.avatarUrl }}" /> -->
         </view>
         <view>
+            <text>头像</text>
+            <button class=" special-new-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+              <image class="avatar" src="{{form.avatarUrl}}"></image>
+            </button> 
             <input hidden="true" type="text" placeholder="姓名" name="avatarUrl" value="{{ form.avatarUrl }}" placeholder-class="form-input-placeholder" />
         </view>
         <view>
@@ -225,7 +227,7 @@
         <view>
             <textarea type="text" placeholder="祝福语，可以上墙哦~" name="greeting" value="{{ form.greeting }}" placeholder-class="form-input-placeholder" maxlength="140" disable-default-padding />
         </view>
-        <button form-type="submit" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo">{{ form.name ? '更新' : '获取昵称' }}</button>
+        <button form-type="submit" open-type="getUserInfo" >{{ form.name ? '更新' : '提交' }}</button>
     </view>
 </form>
 

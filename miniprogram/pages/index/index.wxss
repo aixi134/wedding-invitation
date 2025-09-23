@@ -432,7 +432,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 448rpx !important;
+    width: 448rpx ;
     height: 64rpx;
     background-color: rgba(133, 22, 14, .9);
     border-radius: 28rpx;
@@ -442,6 +442,28 @@
     font-weight: normal;
     text-align: center;
 }
+.form button.special-new-btn {
+    width: 98rpx;
+    height: 98rpx;
+    background: none;
+    background-color: rgba(151, 151, 151, 0.2);
+    border: 0px solid #000;
+    padding: 0; /* 清除内边距 */
+    display: flex; /* 使用flex布局让图片居中 */
+    align-items: center;
+    justify-content: center;
+}
+
+/* 图片样式 */
+.form button.special-new-btn image {
+    width: 100%; /* 充满整个按钮 */
+    height: 100%;
+    object-fit: cover; /* 保持图片比例并填充 */
+}
+.form button:active.special-new-btn  {
+    background-color: rgba(133, 22, 14, 0);
+}
+
 
 .form button:active {
     background-color: rgba(133, 22, 14, 1);

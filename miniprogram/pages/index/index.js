@@ -160,7 +160,7 @@ Page({
             const db = wx.cloud.database()
             db.collection('surveys').get({
                 success: res => {
-                  
+                    console.log(res.data[0])
                     if (res.data.length) {
                         const {
                             name,
@@ -221,13 +221,13 @@ Page({
               success: res => {
                 console.log(res);
                 this.setData({userInfo: res.userInfo})
-                this.setData({
-                  form: {
-                      ...this.data.form,
-                      name: res.userInfo.nickName,
-                      avatarUrl: res.userInfo.avatarUrl
-                  }
-              });
+            //     this.setData({
+            //       form: {
+            //           ...this.data.form,
+            //           name: res.userInfo.nickName,
+            //           avatarUrl: res.userInfo.avatarUrl
+            //       }
+            //   });
                 console.log(1);
               },
               fail: res => {
@@ -512,6 +512,12 @@ Page({
         wx.navigateTo({
             url: `../record/index?isManager=${this.data.isManager}`
         })
+    },
+    onChooseAvatar(e) {
+      const { avatarUrl } = e.detail 
+      this.setData({
+        'form.avatarUrl':avatarUrl,
+      })
     }
       
 })
