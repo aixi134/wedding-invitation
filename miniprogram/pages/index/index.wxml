@@ -209,8 +209,11 @@
     <view class="form tc mb100">
         <view>
             <text>*</text>
-            <input type="text" placeholder="姓名" name="name" value="{{ form.name }}" placeholder-class="form-input-placeholder" maxlength="10" />
-            <image  class="couple-cover" mode="aspectFill" src="{{ form.avatarUrl }}" />
+            <input type="nickname" class="weui-input" placeholder="姓名" name="name" value="{{ form.name }}" placeholder-class="form-input-placeholder" maxlength="10" />
+            <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+              <image class="avatar" src="{{form.avatarUrl}}"></image>
+            </button> 
+            <!-- <image  class="couple-cover" mode="aspectFill" src="{{ form.avatarUrl }}" /> -->
         </view>
         <view>
             <input hidden="true" type="text" placeholder="姓名" name="avatarUrl" value="{{ form.avatarUrl }}" placeholder-class="form-input-placeholder" />
