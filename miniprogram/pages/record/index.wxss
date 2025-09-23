@@ -1,1 +1,183 @@
-/* pages/record/index.wxss */
+/* 通用样式 */
+.container {
+  padding: 16rpx;
+  background-color: #F7F8FA; /* 轻微的灰色背景 */
+  font-family: 'San Francisco', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 搜索栏 */
+.search-bar {
+  margin-bottom: 16rpx;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  border-radius: 25rpx;
+  padding: 12rpx 18rpx;
+  background-color: #fff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.search-input input {
+  flex: 1;
+  height: 40rpx;
+  font-size: 28rpx;
+  border: none;
+  outline: none;
+  padding-left: 12rpx;
+  color: #333;
+}
+
+.search-icon, .clear-icon {
+  font-size: 28rpx;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.3s ease;
+}
+
+.search-icon:hover, .clear-icon:hover {
+  color: #007aff; /* 苹果蓝色 */
+}
+
+/* 非管理员提示 */
+.no-permission {
+  text-align: center;
+  padding: 60rpx 0;
+}
+
+.permission-tip {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.permission-desc {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 管理员界面 */
+.manager-view {
+  background-color: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx;
+  background-color: #f0f0f5;
+  border-bottom: 1rpx solid #e0e0e0;
+}
+
+.welcome-text {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.stats-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 访客列表 */
+.record-list {
+  max-height: 600rpx;
+  overflow-y: auto;
+  padding-bottom: 60rpx; /* 为了scroll-view添加空间 */
+}
+
+.record-item {
+  background-color: #fff;
+  margin: 12rpx 0;
+  padding: 16rpx;
+  border-radius: 12rpx;
+  box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.record-item:hover {
+  transform: translateY(-5rpx);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.visitor-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.visit-time {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.item-content {
+  margin-bottom: 12rpx;
+}
+
+.purpose, .contact {
+  font-size: 24rpx;
+  color: #333;
+}
+
+.remark {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-time {
+  font-size: 20rpx;
+  color: #aaa;
+}
+
+.delete-btn {
+  font-size: 24rpx;
+  color: #FF3B30; /* 苹果删除色 */
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.delete-btn:hover {
+  color: #d9534f; /* 略微加深红色 */
+}
+
+/* 空状态 */
+.empty {
+  text-align: center;
+  padding: 60rpx 0;
+}
+
+.empty-image {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #888;
+  margin-top: 20rpx;
+}
+
+/* 加载和无更多数据 */
+.loading, .no-more {
+  text-align: center;
+  font-size: 24rpx;
+  color: #aaa;
+  padding: 20rpx 0;
+}

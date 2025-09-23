@@ -7,7 +7,6 @@ const MANAGER = ['ohop817Bj849OhyAbLAxxBloH7RQ']
 
 const APP = getApp()
 const isRemoved = APP.globalData.isRemoved
-
 Page({
     data: {
         ...APP.globalData,
@@ -126,9 +125,8 @@ Page({
 
     // 小程序加载时，拉取表单信息并填充，以及格式化各种婚礼时间
     onLoad() {
-        this.getUserInfo()
           // 假设云函数更新了 magic 数据
-          
+   
                 // 添加访客记录的云函数
                 wx.cloud.callFunction({
                   name: 'system_config',
@@ -210,12 +208,78 @@ Page({
 
     // 小程序可见时，拉取祝福语，并设置定时器每20s重新拉取一次祝福语
     onShow() {
-  
+      wx.showModal({
+        title: '温馨提示',
+        content: '亲，授权微信登录后才能正常使用小程序功能',
+        success: (res)=> {
+          console.log(0)
+          console.log(res)
+          //如果用户点击了确定按钮
+          if (res.confirm) {
+            wx.getUserProfile({
+              desc: '获取你的昵称、头像、地区及性别',
+              success: res => {
+                console.log(res);
+                this.setData({userInfo: res.userInfo})
+                this.setData({
+                  form: {
+                      ...this.data.form,
+                      name: res.userInfo.nickName,
+                      avatarUrl: res.userInfo.avatarUrl
+                  }
+              });
+                console.log(1);
+              },
+              fail: res => {
+                console.log(2);
+                console.log(res)
+                //拒绝授权
+                wx.showToast({
+                  title: '您拒绝了请求,不能正常使用小程序',
+                  icon: 'error',
+                  duration: 2000
+                });
+                return;
+              }
+            });
+          } else if (res.cancel) {
+            //如果用户点击了取消按钮
+            console.log(3);
+            wx.showToast({
+              title: '您拒绝了请求,不能正常使用小程序',
+              icon: 'error',
+              duration: 2000
+            });
+            return;
+          }
+        }
+      });
+      
         if (!isRemoved) {
             this.getGreetings()
 
             this.timer === null && (this.timer = setInterval(() => this.getGreetings(), 20000));
         }
+        const recordId = wx.getStorageSync('recordId') || '';
+        console.log("APP.globalData.recordId", recordId, this.userInfo)
+
+        wx.cloud.callFunction({
+          name: 'addVisitorRecord',
+          data: {
+            _id: recordId,
+            userInfo: {
+              nickName: 'John Doe',
+              openId: '123456789'
+            },
+          },
+          success(res) {
+            console.log('Success:', res)
+          },
+          fail(err) {
+            console.log('Error:', err)
+          }
+        })
+        
     },
 
     // 小程序不可见时，取消自动拉取祝福语定时器
@@ -448,74 +512,6 @@ Page({
         wx.navigateTo({
             url: `../record/index?isManager=${this.data.isManager}`
         })
-    },
-    getUserInfo: function() {
-        return new Promise((resolve, reject) => {
-          wx.getSetting({
-            success: (res) => {
-              if (res.authSetting['scope.userInfo']) {
-                wx.getUserInfo({
-                  success: (res) => {
-                    this.setData({ userInfo: res.userInfo })
-                    resolve(res.userInfo)
-                  },
-                  fail: reject
-                })
-              } else {
-                this.createAuthButton(resolve, reject)
-              }
-            },
-            fail: reject
-          })
-        })
-      },
+    }
       
-      createAuthButton: function(resolve, reject) {
-        const button = wx.createUserInfoButton({
-          type: 'text',
-          text: '获取用户信息',
-          style: {
-            left: 10,
-            top: 76,
-            width: 200,
-            height: 40,
-            lineHeight: 40,
-            backgroundColor: '#ff0000',
-            color: '#ffffff',
-            textAlign: 'center',
-            fontSize: 16,
-            borderRadius: 4
-          }
-        })
-        
-        button.onTap((res) => {
-          button.destroy()
-          if (res.errMsg === 'getUserInfo:ok') {
-            this.setData({ userInfo: res.userInfo })
-            resolve(res.userInfo)
-          } else {
-            reject(new Error('用户拒绝授权'))
-          }
-        })
-      },
-    
-    // 获取用户信息的函数
-    onGetUserInfo: function (e) {
-      if (e.detail.errMsg === 'getUserInfo:ok') {
-          const userInfo = e.detail.userInfo;
-          this.setData({
-              form: {
-                  ...this.data.form,
-                  name: userInfo.nickName,
-                  avatarUrl: userInfo.avatarUrl
-              }
-          });
-          console.log("用户信息:", userInfo);
-      } else {
-          wx.showToast({
-              title: '授权失败',
-              icon: 'none'
-          });
-      }
-  }
 })

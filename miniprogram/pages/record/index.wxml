@@ -23,8 +23,8 @@
 
     <!-- 统计信息 -->
     <view class="stats">
-      <text>欢迎，{{userInfo.name}}</text>
-      <text>共{{visitorList.length}}条记录</text>
+      <text class="welcome-text">欢迎，{{userInfo.name}}</text>
+      <text class="stats-text">共{{visitorList.length}}条记录</text>
     </view>
 
     <!-- 访客列表 -->
@@ -44,9 +44,9 @@
           <text class="visit-time">{{formatTime(item.visitTime)}}</text>
         </view>
         <view class="item-content">
-          <text class="purpose">目的：{{item.purpose}}</text>
-          <text class="contact">联系方式：{{item.contact}}</text>
-          <text wx:if="{{item.remark}}" class="remark">备注：{{item.remark}}</text>
+          <text class="purpose">头像：{{item.avatarUrl}}</text>
+          <text class="contact">昵称：{{item.nickName}}</text>
+          <text wx:if="{{item.deviceInfo}}" class="remark">备注：{{stringify(item.deviceInfo)}}</text>
         </view>
         <view class="item-footer">
           <text class="create-time">记录时间：{{formatTime(item.createTime)}}</text>

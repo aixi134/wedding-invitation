@@ -2,7 +2,7 @@ App({
     globalData: {
         isSinglePage: null, // 是否单页模式
         // 以上变量都不用动，以下变量是需要修改的
-
+        recordId: null,
         // 云开发服务是否已下架
         // isRemoved: new Date() * 1 >= 1699401600000, // 自动党，用指定时间戳来控制自动下架
         isRemoved: false, // 手动党（为防止加载初始项目时因为没有云开发环境而报错，我先设为true，等搞好云开发环境后再把它改回false）
@@ -37,17 +37,12 @@ App({
     },
 
     // 小程序启动时，初始化云开发环境
-    onLaunch() {
-
+    onLaunch(options) {
+        console.log("options", options)
         !this.globalData.isRemoved && wx.cloud.init({
             env: 'cloud1-7gptyc1428d9b296', // 云开发环境ID，在云开发控制台里可以查看
             traceUser: true
         })
-
-    },
-
-    // 小程序可见时，判断是否为单页模式
-    onShow(options) {
         const db = wx.cloud.database()
         const { scene, path, query, referrerInfo } = options
 
@@ -86,6 +81,7 @@ App({
         wx.cloud.callFunction({
             name: 'addVisitorRecord',
             data: {
+                _id: null,
                 visitData: {
                     ...visitData
                 },
@@ -100,7 +96,22 @@ App({
                     "unionId": "UNIONID",
                 }
             }
+        }).then((res)=>{
+          console.log("res", res)
+          if(res.result.data.errMsg === 'collection.add:ok'){
+            console.log("res", res.result.data._id)
+            this.globalData.recordId = res.result.data._id
+            wx.setStorageSync('recordId', res.result.data._id);
+
+          }
+          
         })
+
+    },
+
+    // 小程序可见时，判断是否为单页模式
+    onShow(options) {
+        
 
         if (typeof this.globalData.isSinglePage !== 'boolean') { // 没有判断过是否单页模式，则判断一下
             const {
