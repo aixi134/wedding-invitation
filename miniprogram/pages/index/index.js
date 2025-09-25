@@ -11,6 +11,8 @@ Page({
     data: {
         ...APP.globalData,
         userInfo: null,
+        hasAuthorized: false,
+        showAuthPrompt: false,
         isManager: false, // 当前用户是否为管理员
         musicIsPaused: false, // 是否暂停背景音乐
         activeIdx: isRemoved ? 0 : -1, // 祝福语轮播用，当前显示的祝福语索引值
@@ -150,13 +152,17 @@ Page({
               })
 
 
-        
+
         this.timer = null
         this.music = null
         this.isSubmit = false
+        this.recording = false
+        this.pendingRecord = null
+
+        this.initUserInfo()
 
         if (!isRemoved) {
-          
+
             const db = wx.cloud.database()
             db.collection('surveys').get({
                 success: res => {
@@ -208,78 +214,17 @@ Page({
 
     // 小程序可见时，拉取祝福语，并设置定时器每20s重新拉取一次祝福语
     onShow() {
-      wx.showModal({
-        title: '温馨提示',
-        content: '亲，授权微信登录后才能正常使用小程序功能',
-        success: (res)=> {
-          console.log(0)
-          console.log(res)
-          //如果用户点击了确定按钮
-          if (res.confirm) {
-            wx.getUserProfile({
-              desc: '获取你的昵称、头像、地区及性别',
-              success: res => {
-                console.log(res);
-                this.setData({userInfo: res.userInfo})
-            //     this.setData({
-            //       form: {
-            //           ...this.data.form,
-            //           name: res.userInfo.nickName,
-            //           avatarUrl: res.userInfo.avatarUrl
-            //       }
-            //   });
-                console.log(1);
-              },
-              fail: res => {
-                console.log(2);
-                console.log(res)
-                //拒绝授权
-                wx.showToast({
-                  title: '您拒绝了请求,不能正常使用小程序',
-                  icon: 'error',
-                  duration: 2000
-                });
-                return;
-              }
-            });
-          } else if (res.cancel) {
-            //如果用户点击了取消按钮
-            console.log(3);
-            wx.showToast({
-              title: '您拒绝了请求,不能正常使用小程序',
-              icon: 'error',
-              duration: 2000
-            });
-            return;
-          }
-        }
-      });
-      
         if (!isRemoved) {
             this.getGreetings()
 
             this.timer === null && (this.timer = setInterval(() => this.getGreetings(), 20000));
         }
-        const recordId = wx.getStorageSync('recordId') || '';
-        console.log("APP.globalData.recordId", recordId, this.userInfo)
 
-        wx.cloud.callFunction({
-          name: 'addVisitorRecord',
-          data: {
-            _id: recordId,
-            userInfo: {
-              nickName: 'John Doe',
-              openId: '123456789'
-            },
-          },
-          success(res) {
-            console.log('Success:', res)
-          },
-          fail(err) {
-            console.log('Error:', err)
-          }
-        })
-        
+        if (!this.data.hasAuthorized && !this.data.showAuthPrompt) {
+            this.setData({ showAuthPrompt: true })
+        }
+
+        this.recordVisit()
     },
 
     // 小程序不可见时，取消自动拉取祝福语定时器
@@ -513,11 +458,193 @@ Page({
             url: `../record/index?isManager=${this.data.isManager}`
         })
     },
+    handleAuthorize() {
+        if (typeof wx.getUserProfile !== 'function') {
+            wx.showToast({
+                title: '当前微信版本过低，无法授权',
+                icon: 'none'
+            })
+            return
+        }
+        wx.getUserProfile({
+            desc: '用于展示访客头像和昵称，并同步访客记录',
+            success: (res) => {
+                const userInfo = res.userInfo || {}
+                const storedForm = { ...this.data.form }
+
+                if (!storedForm.name && userInfo.nickName) {
+                    storedForm.name = userInfo.nickName
+                }
+
+                if (!storedForm.avatarUrl && userInfo.avatarUrl) {
+                    storedForm.avatarUrl = userInfo.avatarUrl
+                }
+
+                wx.setStorageSync('userProfile', userInfo)
+                APP.globalData.userInfo = userInfo
+
+                this.setData({
+                    userInfo,
+                    hasAuthorized: true,
+                    showAuthPrompt: false,
+                    form: storedForm
+                }, () => {
+                    this.recordVisit({ force: true, increment: false })
+                })
+            },
+            fail: () => {
+                wx.showToast({
+                    title: '授权已取消',
+                    icon: 'none'
+                })
+            }
+        })
+    },
+    initUserInfo() {
+        const storedProfile = wx.getStorageSync('userProfile')
+        const cached = APP.globalData.userInfo || (typeof storedProfile === 'object' ? storedProfile : null)
+        if (cached && typeof cached === 'object' && Object.keys(cached).length) {
+            const storedForm = { ...this.data.form }
+
+            if (!storedForm.name && cached.nickName) {
+                storedForm.name = cached.nickName
+            }
+
+            if (!storedForm.avatarUrl && cached.avatarUrl) {
+                storedForm.avatarUrl = cached.avatarUrl
+            }
+
+            this.setData({
+                userInfo: cached,
+                hasAuthorized: true,
+                showAuthPrompt: false,
+                form: storedForm
+            })
+            APP.globalData.userInfo = cached
+        } else {
+            const canAuthorize = typeof wx.getUserProfile === 'function'
+            this.setData({
+                hasAuthorized: false,
+                showAuthPrompt: canAuthorize
+            })
+        }
+    },
+    recordVisit(options = {}) {
+        if (APP.globalData.isRemoved) {
+            return
+        }
+
+        if (!wx.cloud || typeof wx.cloud.callFunction !== 'function') {
+            console.warn('云开发未初始化，无法记录访客信息')
+            return
+        }
+
+        let force = false
+        let increment = true
+
+        if (typeof options === 'boolean') {
+            force = options
+        } else if (options && typeof options === 'object') {
+            force = !!options.force
+            if (options.increment === false) {
+                increment = false
+            }
+        }
+
+        if (this.recording) {
+            if (force) {
+                this.pendingRecord = { force: false, increment }
+            }
+            return
+        }
+
+        let launchOptions = {}
+        try {
+            launchOptions = wx.getLaunchOptionsSync ? wx.getLaunchOptionsSync() : {}
+        } catch (error) {
+            launchOptions = {}
+        }
+
+        if ((!launchOptions || Object.keys(launchOptions).length === 0) && APP.globalData.launchOptions) {
+            launchOptions = APP.globalData.launchOptions
+        }
+
+        const sceneDescription = typeof APP.getSceneInfo === 'function'
+            ? APP.getSceneInfo(launchOptions.scene)
+            : ''
+
+        let systemInfo = {}
+        try {
+            systemInfo = wx.getSystemInfoSync()
+        } catch (error) {
+            systemInfo = {}
+        }
+
+        const visitData = {
+            sceneInfo: {
+                scene: launchOptions.scene,
+                path: launchOptions.path,
+                query: launchOptions.query || {},
+                referrerInfo: launchOptions.referrerInfo || {},
+                description: sceneDescription
+            },
+            deviceInfo: {
+                brand: systemInfo.brand,
+                model: systemInfo.model,
+                system: systemInfo.system,
+                version: systemInfo.version,
+                platform: systemInfo.platform,
+                language: systemInfo.language
+            },
+            pagePath: launchOptions.path || 'pages/index/index',
+            authorized: this.data.hasAuthorized,
+            clientTime: new Date().toISOString()
+        }
+
+        const recordId = wx.getStorageSync('recordId') || ''
+        const userInfo = this.data.userInfo || {}
+        const formData = this.data.form || {}
+        const fallbackName = formData.name || '未留名访客'
+        const fallbackAvatar = formData.avatarUrl || ''
+
+        const payloadUserInfo = {
+            ...userInfo,
+            nickName: userInfo.nickName || fallbackName,
+            avatarUrl: userInfo.avatarUrl || fallbackAvatar
+        }
+
+        this.recording = true
+        wx.cloud.callFunction({
+            name: 'addVisitorRecord',
+            data: {
+                _id: recordId || undefined,
+                visitData,
+                userInfo: payloadUserInfo,
+                shouldIncrement: increment
+            }
+        }).then((res) => {
+            const { result } = res || {}
+            if (result && result.success && result.recordId) {
+                wx.setStorageSync('recordId', result.recordId)
+                APP.globalData.recordId = result.recordId
+            }
+        }).catch((error) => {
+            console.error('记录访客失败', error)
+        }).finally(() => {
+            this.recording = false
+            if (this.pendingRecord) {
+                const pendingOptions = this.pendingRecord
+                this.pendingRecord = null
+                this.recordVisit(pendingOptions)
+            }
+        })
+    },
     onChooseAvatar(e) {
-      const { avatarUrl } = e.detail 
+      const { avatarUrl } = e.detail
       this.setData({
         'form.avatarUrl':avatarUrl,
       })
+      this.recordVisit({ force: true, increment: false })
     }
-      
+
 })

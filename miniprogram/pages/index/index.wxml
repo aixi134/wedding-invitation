@@ -31,6 +31,11 @@
     </view>
 </view>
 
+<view wx:if="{{ showAuthPrompt }}" class="auth-banner">
+    <view class="auth-text">授权后可同步头像昵称并记录访客信息，方便后续查看。</view>
+    <button class="auth-btn" bindtap="handleAuthorize">微信快捷授权</button>
+</view>
+
 <view class="tc lh21 mb58">
     <view>hi~亲爱的你~</view>
     <view>当收到这封请柬的时候</view>
@@ -227,7 +232,7 @@
         <view>
             <textarea type="text" placeholder="祝福语，可以上墙哦~" name="greeting" value="{{ form.greeting }}" placeholder-class="form-input-placeholder" maxlength="140" disable-default-padding />
         </view>
-        <button form-type="submit" open-type="getUserInfo" >{{ form.name ? '更新' : '提交' }}</button>
+        <button form-type="submit">{{ form.name ? '更新' : '提交' }}</button>
     </view>
 </form>
 
