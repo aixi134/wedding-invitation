@@ -470,7 +470,7 @@ Page({
             desc: '用于展示访客头像和昵称，并同步访客记录',
             success: (res) => {
                 const userInfo = res.userInfo || {}
-                const storedForm = { ...this.data.form }
+                const storedForm = Object.assign({}, this.data.form || {})
 
                 if (!storedForm.name && userInfo.nickName) {
                     storedForm.name = userInfo.nickName
@@ -504,7 +504,7 @@ Page({
         const storedProfile = wx.getStorageSync('userProfile')
         const cached = APP.globalData.userInfo || (typeof storedProfile === 'object' ? storedProfile : null)
         if (cached && typeof cached === 'object' && Object.keys(cached).length) {
-            const storedForm = { ...this.data.form }
+            const storedForm = Object.assign({}, this.data.form || {})
 
             if (!storedForm.name && cached.nickName) {
                 storedForm.name = cached.nickName
@@ -607,11 +607,10 @@ Page({
         const fallbackName = formData.name || '未留名访客'
         const fallbackAvatar = formData.avatarUrl || ''
 
-        const payloadUserInfo = {
-            ...userInfo,
+        const payloadUserInfo = Object.assign({}, userInfo, {
             nickName: userInfo.nickName || fallbackName,
             avatarUrl: userInfo.avatarUrl || fallbackAvatar
-        }
+        })
 
         this.recording = true
         wx.cloud.callFunction({

@@ -27,15 +27,15 @@ exports.main = async (event) => {
   const incrementValue = shouldIncrement ? 1 : 0
 
   try {
-    const basePayload = {
-      ...visitData,
-      ...formatUserInfo(userInfo),
+    const safeVisitData = visitData && typeof visitData === 'object' ? visitData : {}
+    const formattedUser = formatUserInfo(userInfo)
+    const basePayload = Object.assign({}, safeVisitData, formattedUser, {
       openid: wxContext.OPENID,
       appid: wxContext.APPID,
       unionid: wxContext.UNIONID || '',
       visitTime: now,
       updateTime: now
-    }
+    })
 
     if (remark !== undefined && remark !== null) {
       basePayload.remark = remark
@@ -48,10 +48,9 @@ exports.main = async (event) => {
     // 优先按照传入的 _id 更新
     if (_id) {
       const updateResult = await visitor_records.doc(_id).update({
-        data: {
-          ...basePayload,
+        data: Object.assign({}, basePayload, {
           visitCount: _.inc(incrementValue)
-        }
+        })
       })
 
       return {
@@ -71,10 +70,9 @@ exports.main = async (event) => {
     if (existingRecord.data.length) {
       const recordId = existingRecord.data[0]._id
       const updateResult = await visitor_records.doc(recordId).update({
-        data: {
-          ...basePayload,
+        data: Object.assign({}, basePayload, {
           visitCount: _.inc(incrementValue)
-        }
+        })
       })
 
       return {
@@ -87,11 +85,10 @@ exports.main = async (event) => {
 
     // 新建访客记录
     const createResult = await visitor_records.add({
-      data: {
-        ...basePayload,
+      data: Object.assign({}, basePayload, {
         visitCount: 1,
         createTime: now
-      }
+      })
     })
 
     return {

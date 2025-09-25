@@ -131,7 +131,7 @@ Page({
         
         if (result.success) {
           this.setData({
-            visitorList: [...this.data.visitorList, ...result.data],
+            visitorList: this.data.visitorList.concat(result.data),
             page: this.data.page + 1,
             hasMore: (this.data.page + 1) * this.data.pageSize < result.total,
             loading: false,
