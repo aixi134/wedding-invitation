@@ -1,3 +1,4 @@
+<wxs src="./index.wxs" module="filter"></wxs>
 <view class="container">
   <!-- 非管理员提示 -->
   <view wx:if="{{!isManager}}" class="no-permission">
@@ -43,7 +44,7 @@
           <image class="avatar" src="{{item.avatarUrl || defaultAvatar}}" mode="aspectFill"></image>
           <view class="header-main">
             <text class="visitor-name">{{item.nickName || '未授权访客'}}</text>
-            <text class="visit-time">最近访问：{{formatTime(item.visitTime)}}</text>
+            <text class="visit-time">最近访问：{{filter.formatTime(item.visitTime)}}</text>
           </view>
           <view class="tag-group">
             <view wx:if="{{item.visitCount}}" class="visit-count">第{{item.visitCount}}次</view>
@@ -54,15 +55,15 @@
         <view class="item-content">
           <view class="info-row">
             <text class="label">访问入口</text>
-            <text class="value">{{formatSceneInfo(item.sceneInfo)}}</text>
+            <text class="value">{{filter.formatSceneInfo(item.sceneInfo)}}</text>
           </view>
           <view class="info-row">
             <text class="label">设备信息</text>
-            <text class="value">{{formatDeviceInfo(item.deviceInfo)}}</text>
+            <text class="value">{{filter.formatDeviceInfo(item.deviceInfo)}}</text>
           </view>
           <view class="info-row" wx:if="{{item.clientTime}}">
             <text class="label">客户端</text>
-            <text class="value">{{formatTime(item.clientTime)}}</text>
+            <text class="value">{{filter.formatTime(item.clientTime)}}</text>
           </view>
           <view class="info-row" wx:if="{{item.remark}}">
             <text class="label">备注</text>
@@ -71,8 +72,8 @@
         </view>
 
         <view class="item-footer">
-          <text class="create-time">首次访问：{{formatTime(item.createTime)}}</text>
-          <text class="create-time">最近更新：{{formatTime(item.updateTime || item.visitTime)}} </text>
+          <text class="create-time">首次访问：{{filter.formatTime(item.createTime)}}</text>
+          <text class="create-time">最近更新：{{filter.formatTime(item.updateTime || item.visitTime)}} </text>
           <text class="delete-btn" bindtap="deleteRecord" data-id="{{item._id}}">删除</text>
         </view>
       </view>

@@ -165,44 +165,8 @@ Page({
       })
     },
   
-    // 格式化时间显示
-    formatTime(dateInput) {
-      if (!dateInput) {
-        return '--'
-      }
 
-      const date = dateInput instanceof Date ? dateInput : new Date(dateInput)
-      if (Number.isNaN(date.getTime())) {
-        return '--'
-      }
 
-      const pad = (value) => value.toString().padStart(2, '0')
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
-    },
-
-    formatDeviceInfo(deviceInfo) {
-      if (!deviceInfo || typeof deviceInfo !== 'object') {
-        return '未获取到设备信息'
-      }
-
-      const parts = []
-      if (deviceInfo.brand) {
-        parts.push(deviceInfo.brand)
-      }
-      if (deviceInfo.model) {
-        parts.push(deviceInfo.model)
-      }
-      if (deviceInfo.system) {
-        parts.push(deviceInfo.system)
-      }
-      if (deviceInfo.version) {
-        parts.push(`版本 ${deviceInfo.version}`)
-      }
-      if (deviceInfo.platform) {
-        parts.push(`平台 ${deviceInfo.platform}`)
-      }
-      return parts.join(' · ') || '未获取到设备信息'
-    },
 
     formatSceneInfo(sceneInfo) {
       if (!sceneInfo) {

@@ -1,0 +1,100 @@
+    var filter = {
+      formatDeviceInfo: function (deviceInfo) {
+        console.log(deviceInfo)
+        if (!deviceInfo || typeof deviceInfo !== 'object') {
+          return '未获取到设备信息'
+        }
+
+        var parts = []
+        if (deviceInfo.brand) {
+          parts.push(deviceInfo.brand)
+        }
+        if (deviceInfo.model) {
+          parts.push(deviceInfo.model)
+        }
+        if (deviceInfo.system) {
+          parts.push(deviceInfo.system)
+        }
+        if (deviceInfo.version) {
+          parts.push('版本' + deviceInfo.version)
+        }
+        if (deviceInfo.platform) {
+          parts.push('平台' + deviceInfo.platform)
+        }
+        console.log(parts.join(' · '))
+        return parts.join(' · ') || '未获取到设备信息'
+      },
+
+      // 格式化时间显示
+      formatTime: function (dateInput) {
+        if (!dateInput) {
+          return '--'
+        }
+
+        var date = getDate(dateInput)
+        if (isNaN(date.getTime())) {
+          return '--'
+        }
+
+        var pad = function (value) {
+          var str = value.toString()
+          return str.length < 2 ? '0' + str : str
+        }
+
+        var year = date.getFullYear()
+        var month = pad(date.getMonth() + 1)
+        var day = pad(date.getDate())
+        var hours = pad(date.getHours())
+        var minutes = pad(date.getMinutes())
+
+        return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes
+
+      },
+
+      formatSceneInfo: function (sceneInfo) {
+        if (!sceneInfo) {
+          return '直接打开'
+        }
+
+        if (typeof sceneInfo === 'string') {
+          return sceneInfo
+        }
+
+        var scene = sceneInfo.scene;
+        var path = sceneInfo.path;
+        var query = sceneInfo.query || {};
+        var referrerInfo = sceneInfo.referrerInfo || {};
+        var description = sceneInfo.description;
+        var pagePath = sceneInfo.pagePath;
+        var info = []
+
+        if (description) {
+          info.push(description)
+        }
+
+        if (scene !== undefined) {
+          info.push('场景值' + scene)
+        }
+
+        if (path) {
+          info.push(path)
+        }
+
+        if (pagePath) {
+          info.push('页面' + pagePath)
+        }
+
+
+        if (referrerInfo.appId) {
+          info.push('来源小程序' + referrerInfo.appId)
+        }
+
+        return info.join(' | ') || '直接打开'
+      }
+    }
+
+    module.exports = {
+      formatDeviceInfo: filter.formatDeviceInfo,
+      formatSceneInfo: filter.formatSceneInfo,
+      formatTime: filter.formatTime,
+    }
