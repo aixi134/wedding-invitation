@@ -484,7 +484,7 @@ Page({
             return
         }
         wx.getUserProfile({
-            desc: '用于展示访客头像和昵称，并同步访客记录',
+            desc: '用于展示访客头像和昵称',
             success: (res) => {
                 const userInfo = res.userInfo || {}
                 const storedForm = Object.assign({}, this.data.form || {})
