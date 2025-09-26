@@ -6,16 +6,37 @@ const {
 const MANAGER = ['ohop817Bj849OhyAbLAxxBloH7RQ']
 
 const APP = getApp()
-const isRemoved = APP.globalData.isRemoved
+const GLOBAL_DATA = (APP && APP.globalData) ? APP.globalData : {}
+const INITIAL_IS_REMOVED = !!GLOBAL_DATA.isRemoved
+
 Page({
     data: {
-        ...APP.globalData,
+        isSinglePage: typeof GLOBAL_DATA.isSinglePage === 'boolean' ? GLOBAL_DATA.isSinglePage : null,
+        recordId: GLOBAL_DATA.recordId || null,
+        isRemoved: INITIAL_IS_REMOVED,
+        magic: typeof GLOBAL_DATA.magic === 'boolean' ? GLOBAL_DATA.magic : false,
+        weddingTime: GLOBAL_DATA.weddingTime || '2025-10-04 11:30',
+        couple: GLOBAL_DATA.couple || [{
+            image: 'https://h5cdn.hunbei.com/editorTempCustomPic/2025-9-20-jPciJQEZrC6fh7HYhNpZ2dNWDDkbEHXS.jpeg',
+            name: '张家宾',
+            alias: '新郎',
+            number: '16602187434',
+            birthday: '1997.01.30'
+        }, {
+            image: 'https://h5cdn.hunbei.com/editorTempCustomPic/2025-9-20-bwCWsARrGE8zr2cSNwKDHBNw6zBKTEde.jpeg',
+            name: '张宇',
+            alias: '新娘',
+            number: '打新郎的',
+            birthday: '1996.10.16'
+        }],
+        publisher: GLOBAL_DATA.publisher || '家宾&小宇',
+        anniversary: GLOBAL_DATA.anniversary || '2020.10.08',
         userInfo: null,
         hasAuthorized: false,
         showAuthPrompt: false,
         isManager: false, // 当前用户是否为管理员
         musicIsPaused: false, // 是否暂停背景音乐
-        activeIdx: isRemoved ? 0 : -1, // 祝福语轮播用，当前显示的祝福语索引值
+        activeIdx: INITIAL_IS_REMOVED ? 0 : -1, // 祝福语轮播用，当前显示的祝福语索引值
         form: { // 表单信息
             name: '',
             num: '',
@@ -30,7 +51,7 @@ Page({
         showEggs: false,
 
         // 祝福语列表
-        greetings: isRemoved ? [
+        greetings: INITIAL_IS_REMOVED ? [
             // 云开发下架后显示的祝福语数据，可以在云开发环境销毁前把数据库的数据导出来并贴到这里
             {
                 name: '新郎 & 新娘',
@@ -127,31 +148,27 @@ Page({
 
     // 小程序加载时，拉取表单信息并填充，以及格式化各种婚礼时间
     onLoad() {
-          // 假设云函数更新了 magic 数据
-   
-                // 添加访客记录的云函数
-                wx.cloud.callFunction({
-                  name: 'system_config',
-                  data: {
-                  }
-              }).then(result => {
-                
-                if (result.errMsg === 'cloud.callFunction:ok') {
-                  let config = result.result[0]
-            
-                  this.setData({
+        // 假设云函数更新了 magic 数据
+        wx.cloud.callFunction({
+            name: 'system_config',
+            data: {}
+        }).then(result => {
+            if (result.errMsg === 'cloud.callFunction:ok') {
+                const config = result.result[0]
+
+                this.setData({
                     magic: config.magic,
                     isRemoved: config.isRemoved
-                  });
-                  
-                }else{
-        
+                })
+
+                if (APP && APP.globalData) {
+                    APP.globalData.magic = config.magic
+                    APP.globalData.isRemoved = config.isRemoved
                 }
-        
-                return result;
-              })
+            }
 
-
+            return result
+        })
 
         this.timer = null
         this.music = null
@@ -161,7 +178,7 @@ Page({
 
         this.initUserInfo()
 
-        if (!isRemoved) {
+        if (!this.data.isRemoved) {
 
             const db = wx.cloud.database()
             db.collection('surveys').get({
@@ -214,7 +231,7 @@ Page({
 
     // 小程序可见时，拉取祝福语，并设置定时器每20s重新拉取一次祝福语
     onShow() {
-        if (!isRemoved) {
+        if (!this.data.isRemoved) {
             this.getGreetings()
 
             this.timer === null && (this.timer = setInterval(() => this.getGreetings(), 20000));
@@ -344,7 +361,7 @@ Page({
                     icon: 'error'
                 })
             } else {
-                if (isRemoved) {
+                if (this.data.isRemoved) {
                     wx.showToast({
                         title: '婚礼结束了哦~'
                     })
