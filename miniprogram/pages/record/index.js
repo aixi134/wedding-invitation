@@ -7,7 +7,9 @@ Page({
       page: 1,
       pageSize: 20,
       keyword: '',
-      userInfo: null
+      userInfo: null,
+      totalCount: 0,
+      defaultAvatar: 'https://res.wx.qq.com/a/wx_fed/assets/res/OTE0YTAw.png'
     },
   
     onLoad(options) {
@@ -91,7 +93,8 @@ Page({
             visitorList: result.data,
             page: 1,
             hasMore: result.data.length < result.total,
-            loading: false
+            loading: false,
+            totalCount: result.total
           })
         } else {
           wx.showToast({
@@ -128,10 +131,11 @@ Page({
         
         if (result.success) {
           this.setData({
-            visitorList: [...this.data.visitorList, ...result.data],
+            visitorList: this.data.visitorList.concat(result.data),
             page: this.data.page + 1,
             hasMore: (this.data.page + 1) * this.data.pageSize < result.total,
-            loading: false
+            loading: false,
+            totalCount: result.total
           })
         } else {
           this.setData({ loading: false })
@@ -162,9 +166,83 @@ Page({
     },
   
     // 格式化时间显示
-    formatTime(dateString) {
-      const date = new Date(dateString)
-      return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
+    formatTime(dateInput) {
+      if (!dateInput) {
+        return '--'
+      }
+
+      const date = dateInput instanceof Date ? dateInput : new Date(dateInput)
+      if (Number.isNaN(date.getTime())) {
+        return '--'
+      }
+
+      const pad = (value) => value.toString().padStart(2, '0')
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+    },
+
+    formatDeviceInfo(deviceInfo) {
+      if (!deviceInfo || typeof deviceInfo !== 'object') {
+        return '未获取到设备信息'
+      }
+
+      const parts = []
+      if (deviceInfo.brand) {
+        parts.push(deviceInfo.brand)
+      }
+      if (deviceInfo.model) {
+        parts.push(deviceInfo.model)
+      }
+      if (deviceInfo.system) {
+        parts.push(deviceInfo.system)
+      }
+      if (deviceInfo.version) {
+        parts.push(`版本 ${deviceInfo.version}`)
+      }
+      if (deviceInfo.platform) {
+        parts.push(`平台 ${deviceInfo.platform}`)
+      }
+      return parts.join(' · ') || '未获取到设备信息'
+    },
+
+    formatSceneInfo(sceneInfo) {
+      if (!sceneInfo) {
+        return '直接打开'
+      }
+
+      if (typeof sceneInfo === 'string') {
+        return sceneInfo
+      }
+
+      const { scene, path, query = {}, referrerInfo = {}, description, pagePath } = sceneInfo
+      const info = []
+
+      if (description) {
+        info.push(description)
+      }
+
+      if (scene !== undefined) {
+        info.push(`场景值 ${scene}`)
+      }
+
+      if (path) {
+        info.push(path)
+      }
+
+      if (pagePath) {
+        info.push(`页面 ${pagePath}`)
+      }
+
+      const queryKeys = Object.keys(query || {})
+      if (queryKeys.length) {
+        const queryString = queryKeys.map(key => `${key}=${query[key]}`).join('&')
+        info.push(`参数 ${queryString}`)
+      }
+
+      if (referrerInfo.appId) {
+        info.push(`来源小程序 ${referrerInfo.appId}`)
+      }
+
+      return info.join(' | ') || '直接打开'
     },
   
     // 删除记录（需要额外权限验证）
