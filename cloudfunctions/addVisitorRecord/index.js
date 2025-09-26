@@ -20,28 +20,11 @@ const formatUserInfo = (userInfo = {}) => {
   }, {})
 }
 
-const normalizeId = (value) => {
-  if (!value) {
-    return ''
-  }
-
-  if (typeof value === 'string') {
-    const trimmed = value.trim()
-    if (!trimmed || trimmed === 'undefined' || trimmed === 'null' || trimmed === '0' || trimmed === '[object Object]') {
-      return ''
-    }
-    return trimmed
-  }
-
-  return ''
-}
-
 exports.main = async (event) => {
   const { visitData = {}, userInfo, remark, _id, shouldIncrement = true } = event
   const wxContext = cloud.getWXContext()
   const now = db.serverDate()
   const incrementValue = shouldIncrement ? 1 : 0
-  const normalizedId = normalizeId(_id)
 
   try {
     const safeVisitData = visitData && typeof visitData === 'object' ? visitData : {}
@@ -63,23 +46,17 @@ exports.main = async (event) => {
     }
 
     // 优先按照传入的 _id 更新
-    const buildUpdateData = () => {
-      const updateData = Object.assign({}, basePayload)
-      if (incrementValue > 0) {
-        updateData.visitCount = _.inc(incrementValue)
-      }
-      return updateData
-    }
-
-    if (normalizedId) {
-      const updateResult = await visitor_records.doc(normalizedId).update({
-        data: buildUpdateData()
+    if (_id) {
+      const updateResult = await visitor_records.doc(_id).update({
+        data: Object.assign({}, basePayload, {
+          visitCount: _.inc(incrementValue)
+        })
       })
 
       return {
         success: true,
         data: updateResult,
-        recordId: normalizedId,
+        recordId: _id,
         message: '更新成功'
       }
     }
@@ -93,7 +70,9 @@ exports.main = async (event) => {
     if (existingRecord.data.length) {
       const recordId = existingRecord.data[0]._id
       const updateResult = await visitor_records.doc(recordId).update({
-        data: buildUpdateData()
+        data: Object.assign({}, basePayload, {
+          visitCount: _.inc(incrementValue)
+        })
       })
 
       return {
@@ -107,7 +86,7 @@ exports.main = async (event) => {
     // 新建访客记录
     const createResult = await visitor_records.add({
       data: Object.assign({}, basePayload, {
-        visitCount: incrementValue > 0 ? incrementValue : 1,
+        visitCount: 1,
         createTime: now
       })
     })

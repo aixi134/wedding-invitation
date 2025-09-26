@@ -8,26 +8,11 @@ const MANAGER = ['ohop817Bj849OhyAbLAxxBloH7RQ']
 const APP = getApp()
 const GLOBAL_DATA = (APP && APP.globalData) ? APP.globalData : {}
 const INITIAL_IS_REMOVED = !!GLOBAL_DATA.isRemoved
-const normalizeRecordId = (value) => {
-    if (!value) {
-        return ''
-    }
-
-    if (typeof value === 'string') {
-        const trimmed = value.trim()
-        if (!trimmed || trimmed === 'undefined' || trimmed === 'null' || trimmed === '0' || trimmed === '[object Object]') {
-            return ''
-        }
-        return trimmed
-    }
-
-    return ''
-}
 
 Page({
     data: {
         isSinglePage: typeof GLOBAL_DATA.isSinglePage === 'boolean' ? GLOBAL_DATA.isSinglePage : null,
-        recordId: normalizeRecordId(GLOBAL_DATA.recordId) || null,
+        recordId: GLOBAL_DATA.recordId || null,
         isRemoved: INITIAL_IS_REMOVED,
         magic: typeof GLOBAL_DATA.magic === 'boolean' ? GLOBAL_DATA.magic : false,
         weddingTime: GLOBAL_DATA.weddingTime || '2025-10-04 11:30',
@@ -192,22 +177,6 @@ Page({
         this.pendingRecord = null
 
         this.initUserInfo()
-
-        const cachedRecordId = normalizeRecordId(wx.getStorageSync('recordId') || this.data.recordId || (APP && APP.globalData && APP.globalData.recordId))
-        if (cachedRecordId) {
-            if (this.data.recordId !== cachedRecordId) {
-                this.setData({
-                    recordId: cachedRecordId
-                })
-            }
-            if (APP && APP.globalData) {
-                APP.globalData.recordId = cachedRecordId
-            }
-        } else if (this.data.recordId) {
-            this.setData({
-                recordId: null
-            })
-        }
 
         if (!this.data.isRemoved) {
 
@@ -649,10 +618,7 @@ Page({
             clientTime: new Date().toISOString()
         }
 
-        const storedRecordId = normalizeRecordId(wx.getStorageSync('recordId'))
-        const currentRecordId = normalizeRecordId(this.data.recordId)
-        const globalRecordId = normalizeRecordId(APP && APP.globalData && APP.globalData.recordId)
-        const recordId = storedRecordId || currentRecordId || globalRecordId
+        const recordId = wx.getStorageSync('recordId') || ''
         const userInfo = this.data.userInfo || {}
         const formData = this.data.form || {}
         const fallbackName = formData.name || '未留名访客'
@@ -675,18 +641,8 @@ Page({
         }).then((res) => {
             const { result } = res || {}
             if (result && result.success && result.recordId) {
-                const normalized = normalizeRecordId(result.recordId)
-                if (normalized) {
-                    wx.setStorageSync('recordId', normalized)
-                    if (APP && APP.globalData) {
-                        APP.globalData.recordId = normalized
-                    }
-                    if (this.data.recordId !== normalized) {
-                        this.setData({
-                            recordId: normalized
-                        })
-                    }
-                }
+                wx.setStorageSync('recordId', result.recordId)
+                APP.globalData.recordId = result.recordId
             }
         }).catch((error) => {
             console.error('记录访客失败', error)

@@ -9,8 +9,7 @@ Page({
       keyword: '',
       userInfo: null,
       totalCount: 0,
-      defaultAvatar: 'https://res.wx.qq.com/a/wx_fed/assets/res/OTE0YTAw.png',
-      viewMode: 'table'
+      defaultAvatar: 'https://res.wx.qq.com/a/wx_fed/assets/res/OTE0YTAw.png'
     },
   
     onLoad(options) {
@@ -179,17 +178,6 @@ Page({
 
       const pad = (value) => value.toString().padStart(2, '0')
       return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
-    },
-
-    switchView(e) {
-      const { mode } = e.currentTarget.dataset || {}
-      if (!mode || mode === this.data.viewMode) {
-        return
-      }
-
-      this.setData({
-        viewMode: mode
-      })
     },
 
     formatDeviceInfo(deviceInfo) {

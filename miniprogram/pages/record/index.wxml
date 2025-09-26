@@ -10,9 +10,9 @@
     <!-- 搜索栏 -->
     <view class="search-bar">
       <view class="search-input">
-        <input 
-          value="{{keyword}}" 
-          placeholder="输入访客姓名或访问目的" 
+        <input
+          value="{{keyword}}"
+          placeholder="输入访客姓名或访问目的"
           bindinput="onSearchInput"
           bindconfirm="onSearch"
         />
@@ -27,20 +27,6 @@
       <text class="stats-text">共{{totalCount}}条记录</text>
     </view>
 
-    <!-- 视图切换 -->
-    <view class="view-switch">
-      <view
-        class="switch-button {{viewMode === 'table' ? 'active' : ''}}"
-        data-mode="table"
-        bindtap="switchView"
-      >表格视图</view>
-      <view
-        class="switch-button {{viewMode === 'cards' ? 'active' : ''}}"
-        data-mode="cards"
-        bindtap="switchView"
-      >卡片视图</view>
-    </view>
-
     <!-- 访客列表 -->
     <scroll-view
       class="record-list"
@@ -52,87 +38,44 @@
         <text class="empty-text">{{keyword ? '暂无搜索结果' : '暂无访客记录'}}</text>
       </view>
 
-      <block wx:if="{{viewMode === 'table' && visitorList.length}}">
-        <view class="record-table">
-          <view class="table-header">
-            <view class="cell cell-visitor">访客</view>
-            <view class="cell cell-auth">授权状态</view>
-            <view class="cell cell-count">访问次数</view>
-            <view class="cell cell-time">最近访问</view>
-            <view class="cell cell-time">首次访问</view>
-            <view class="cell cell-device">设备信息</view>
-            <view class="cell cell-scene">访问入口</view>
-            <view class="cell cell-remark">备注</view>
-            <view class="cell cell-actions">操作</view>
+      <view wx:for="{{visitorList}}" wx:key="_id" class="record-item">
+        <view class="item-header">
+          <image class="avatar" src="{{item.avatarUrl || defaultAvatar}}" mode="aspectFill"></image>
+          <view class="header-main">
+            <text class="visitor-name">{{item.nickName || '未授权访客'}}</text>
+            <text class="visit-time">最近访问：{{formatTime(item.visitTime)}}</text>
           </view>
-          <block wx:for="{{visitorList}}" wx:key="_id">
-            <view class="table-row">
-              <view class="cell cell-visitor">
-                <view class="visitor-cell">
-                  <image class="avatar" src="{{item.avatarUrl || defaultAvatar}}" mode="aspectFill"></image>
-                  <view class="visitor-meta">
-                    <text class="visitor-name">{{item.nickName || '未授权访客'}}</text>
-                    <text class="visit-time">最近访问：{{formatTime(item.visitTime)}}</text>
-                  </view>
-                </view>
-              </view>
-              <view class="cell cell-auth">
-                <text class="auth-status {{item.authorized ? 'is-auth' : 'is-unauth'}}">{{item.authorized ? '已授权' : '未授权'}}</text>
-              </view>
-              <view class="cell cell-count">{{item.visitCount || 0}}</view>
-              <view class="cell cell-time">{{formatTime(item.visitTime)}}</view>
-              <view class="cell cell-time">{{formatTime(item.createTime)}}</view>
-              <view class="cell cell-device">{{formatDeviceInfo(item.deviceInfo)}}</view>
-              <view class="cell cell-scene">{{formatSceneInfo(item.sceneInfo)}}</view>
-              <view class="cell cell-remark">{{item.remark || '--'}}</view>
-              <view class="cell cell-actions">
-                <text class="delete-btn" bindtap="deleteRecord" data-id="{{item._id}}">删除</text>
-              </view>
-            </view>
-          </block>
-        </view>
-      </block>
-
-      <block wx:elif="{{viewMode === 'cards' && visitorList.length}}">
-        <view wx:for="{{visitorList}}" wx:key="_id" class="record-item">
-          <view class="item-header">
-            <image class="avatar" src="{{item.avatarUrl || defaultAvatar}}" mode="aspectFill"></image>
-            <view class="header-main">
-              <text class="visitor-name">{{item.nickName || '未授权访客'}}</text>
-              <text class="visit-time">最近访问：{{formatTime(item.visitTime)}}</text>
-            </view>
-            <view class="tag-group">
-              <view wx:if="{{item.visitCount}}" class="visit-count">第{{item.visitCount}}次</view>
-              <view wx:if="{{item.authorized}}" class="auth-tag">已授权</view>
-            </view>
-          </view>
-
-          <view class="item-content">
-            <view class="info-row">
-              <text class="label">访问入口</text>
-              <text class="value">{{formatSceneInfo(item.sceneInfo)}}</text>
-            </view>
-            <view class="info-row">
-              <text class="label">设备信息</text>
-              <text class="value">{{formatDeviceInfo(item.deviceInfo)}}</text>
-            </view>
-            <view class="info-row" wx:if="{{item.clientTime}}">
-              <text class="label">客户端</text>
-              <text class="value">{{formatTime(item.clientTime)}}</text>
-            </view>
-            <view class="info-row" wx:if="{{item.remark}}">
-              <text class="label">备注</text>
-              <text class="value">{{item.remark}}</text>
-            </view>
-          </view>
-
-          <view class="item-footer">
-            <text class="create-time">首次访问：{{formatTime(item.createTime)}}</text>
-            <text class="create-time">最近更新：{{formatTime(item.updateTime || item.visitTime)}} </text>
-            <text class="delete-btn" bindtap="deleteRecord" data-id="{{item._id}}">删除</text>
+          <view class="tag-group">
+            <view wx:if="{{item.visitCount}}" class="visit-count">第{{item.visitCount}}次</view>
+            <view wx:if="{{item.authorized}}" class="auth-tag">已授权</view>
           </view>
         </view>
-      </block>
+
+        <view class="item-content">
+          <view class="info-row">
+            <text class="label">访问入口</text>
+            <text class="value">{{formatSceneInfo(item.sceneInfo)}}</text>
+          </view>
+          <view class="info-row">
+            <text class="label">设备信息</text>
+            <text class="value">{{formatDeviceInfo(item.deviceInfo)}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.clientTime}}">
+            <text class="label">客户端</text>
+            <text class="value">{{formatTime(item.clientTime)}}</text>
+          </view>
+          <view class="info-row" wx:if="{{item.remark}}">
+            <text class="label">备注</text>
+            <text class="value">{{item.remark}}</text>
+          </view>
+        </view>
+
+        <view class="item-footer">
+          <text class="create-time">首次访问：{{formatTime(item.createTime)}}</text>
+          <text class="create-time">最近更新：{{formatTime(item.updateTime || item.visitTime)}} </text>
+          <text class="delete-btn" bindtap="deleteRecord" data-id="{{item._id}}">删除</text>
+        </view>
+      </view>
 
       <!-- 加载状态 -->
       <view wx:if="{{loading}}" class="loading">加载中...</view>
