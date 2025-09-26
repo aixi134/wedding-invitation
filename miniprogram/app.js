@@ -38,75 +38,22 @@ App({
 
     // 小程序启动时，初始化云开发环境
     onLaunch(options) {
-        console.log("options", options)
         !this.globalData.isRemoved && wx.cloud.init({
             env: 'cloud1-7gptyc1428d9b296', // 云开发环境ID，在云开发控制台里可以查看
             traceUser: true
         })
-        const db = wx.cloud.database()
-        const { scene, path, query, referrerInfo } = options
 
-
-
-        // 获取设备信息
-        const systemInfo = wx.getSystemInfoSync()
-
-        // 构建访问记录数据
-        const visitData = {
-            visitTime: new Date(),
-            pagePath: path || '首页',
-            scene: scene || 1001,
-            sceneInfo: this.getSceneInfo(scene),
-            deviceInfo: {
-                model: systemInfo.model,
-                system: systemInfo.system,
-                platform: systemInfo.platform,
-                SDKVersion: systemInfo.SDKVersion
-            },
-            createTime: db.serverDate()
+        const storedRecordId = wx.getStorageSync('recordId')
+        if (storedRecordId) {
+            this.globalData.recordId = storedRecordId
         }
 
-        // 如果有场景参数，添加场景信息
-        if (query) {
-            visitData.queryParams = query
+        const storedProfile = wx.getStorageSync('userProfile')
+        if (storedProfile && typeof storedProfile === 'object') {
+            this.globalData.userInfo = storedProfile
         }
 
-        // 如果有来源信息
-        if (referrerInfo) {
-            visitData.referrerInfo = referrerInfo
-        }
-
-
-        // 添加访客记录的云函数
-        wx.cloud.callFunction({
-            name: 'addVisitorRecord',
-            data: {
-                _id: null,
-                visitData: {
-                    ...visitData
-                },
-                userInfo: {
-                    "openId": "OPENID",
-                    "nickName": "NICKNAME",
-                    "gender": "GENDER",
-                    "city": "CITY",
-                    "province": "PROVINCE",
-                    "country": "COUNTRY",
-                    "avatarUrl": "AVATARURL",
-                    "unionId": "UNIONID",
-                }
-            }
-        }).then((res)=>{
-          console.log("res", res)
-          if(res.result.data.errMsg === 'collection.add:ok'){
-            console.log("res", res.result.data._id)
-            this.globalData.recordId = res.result.data._id
-            wx.setStorageSync('recordId', res.result.data._id);
-
-          }
-          
-        })
-
+        this.globalData.launchOptions = options
     },
 
     // 小程序可见时，判断是否为单页模式
