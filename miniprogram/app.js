@@ -1,6 +1,7 @@
 App({
     globalData: {
         isSinglePage: null, // 是否单页模式
+        // 是否为管理员
         // 以上变量都不用动，以下变量是需要修改的
         recordId: null,
         // 云开发服务是否已下架
@@ -58,7 +59,7 @@ App({
 
     // 小程序可见时，判断是否为单页模式
     onShow(options) {
-        
+
 
         if (typeof this.globalData.isSinglePage !== 'boolean') { // 没有判断过是否单页模式，则判断一下
             const {
