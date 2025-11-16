@@ -54,7 +54,7 @@
 
         <view class="item-content">
           <view class="info-row">
-            <text class="label">访问入口</text>
+            <text class="label">访问入口 </text>
             <text class="value">{{filter.formatSceneInfo(item.sceneInfo)}}</text>
           </view>
           <view class="info-row">
